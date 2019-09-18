@@ -19,8 +19,9 @@ public class Tron extends JPanel implements ActionListener {
 	public static final int WIDTH = 600;
 	public static final int HEIGHT = 480;
 
+	private boolean[][] fields = new boolean[WIDTH][HEIGHT];
+
 	private int speed = 4;
-	private boolean[][] field = new boolean[WIDTH][HEIGHT];
 
 	private Player player1;
 	private Player player2;
@@ -29,17 +30,17 @@ public class Tron extends JPanel implements ActionListener {
 
 	private boolean game = true;
 
-	private Timer timer = new Timer(10, this);
+	private Timer timer = new Timer(60, this);
 
 	public Tron(JFrame frame) {
-		player1 = new Player(Color.RED);
-		player2 = new Player(Color.GREEN);
-
 		try {
 			backgroundImage = ImageIO.read(new File("./src/images/background.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		player1 = new Player(Color.RED);
+		player2 = new Player(Color.GREEN);
 
 		frame.addKeyListener(new KeyAdapter() {
 
@@ -89,29 +90,28 @@ public class Tron extends JPanel implements ActionListener {
 
 		g2d.drawImage(backgroundImage, 0, 0, null);
 
-		if (!game)
-			game = true;
+		if (!game) {
+			return;
+		}
 
 		for (int i = 0; i < speed; i++) {
 			player1.tick();
 			player2.tick();
 
-			if (field[player1.x][player1.y] == true)
+			if (fields[player1.x][player1.y] == true)
+				game = false;
+			if (fields[player2.x][player2.y] == true)
 				game = false;
 
-			if (field[player2.x][player2.y] == true)
-				game = false;
-
-			field[player1.x][player1.y] = true;
-			field[player2.x][player2.y] = true;
+			fields[player1.x][player1.y] = true;
+			fields[player2.x][player2.y] = true;
 
 			g2d.setColor(player1.color);
-			g2d.fillRect(player1.x, player1.x, 3, 3);
+			g2d.fillArc(player1.x, player1.y, 8, 8, 0, 360);
 
 			g2d.setColor(player2.color);
-			g2d.fillRect(player2.x, player2.x, 3, 3);
+			g2d.fillRect(player2.x, player2.y, 8, 8);
 		}
-
 	}
 
 	@Override
