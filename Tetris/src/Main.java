@@ -8,7 +8,7 @@ public class Main {
 		JFrame frame = new JFrame("The Game!");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		frame.add(new Game());
+		frame.add(new Game(frame));
 		frame.setSize(new Dimension(350, 500));
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
