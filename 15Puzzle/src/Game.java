@@ -8,6 +8,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -63,10 +66,11 @@ public class Game extends JPanel {
 		});
 
 		frame.addKeyListener(new KeyAdapter() {
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_F5) {
-					startGame();
+					start();
 					repaint();
 				}
 			}
@@ -74,17 +78,33 @@ public class Game extends JPanel {
 
 		setBackground(Color.WHITE);
 
-		startGame();
+		loadImages();
+		start();
 	}
 
-	protected void startGame() {
-		int n = 0;
+	private void loadImages() {
+		int index = 0;
+
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++)
+				numbers[index++] = image15.getSubimage(i * width, j * width, width, width);
+		}
+	}
+
+	public void start() {
+		List<Integer> integers = new ArrayList<>();
+
+		for (int i = 0; i < 16; i++)
+			integers.add(i);
+
+		Collections.shuffle(integers);
+
+		int index = 0;
 
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				numbers[n] = image15.getSubimage(i * width, j * width, width, width);
-				grid[i + 1][j + 1] = n;
-				n++;
+				grid[i + 1][j + 1] = integers.get(index);
+				index++;
 			}
 		}
 	}
@@ -97,8 +117,8 @@ public class Game extends JPanel {
 
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				int n = grid[i + 1][j + 1];
-				g2d.drawImage(numbers[n], i * width, j * width, null);
+				int number = grid[i + 1][j + 1];
+				g2d.drawImage(numbers[number], i * width, j * width, null);
 			}
 		}
 	}
