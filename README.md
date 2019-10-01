@@ -10,3 +10,6 @@
 
 ## Tron
 ![Tron](https://user-images.githubusercontent.com/48946749/65619587-c7b30f00-df96-11e9-822e-6799cf9f5b07.gif)
+
+## 15 Puzzle
+![15 Puzzle](https://user-images.githubusercontent.com/48946749/65973021-0b978f80-e441-11e9-81f8-b281851741e8.gif)
