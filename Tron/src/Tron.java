@@ -33,7 +33,7 @@ public class Tron extends JPanel implements ActionListener {
 
 	private Color winnerColor;
 
-	private Timer timer = new Timer(60, this);
+	private Timer timer = new Timer(50, this);
 
 	public Tron(JFrame frame) {
 		try {
