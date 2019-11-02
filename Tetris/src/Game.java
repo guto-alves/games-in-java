@@ -20,10 +20,10 @@ import javax.swing.Timer;
 public class Game extends JPanel implements ActionListener {
 	private final SecureRandom random = new SecureRandom();
 
-	private final int M = 20;
-	private final int N = 10;
+	private final int ROWS = 22;
+	private final int COLUMNS = 12;
 
-	private boolean[][] fields = new boolean[M][N];
+	private int[][] fields = new int[ROWS][COLUMNS];
 
 	private int[][] figures = { { 1, 3, 5, 7 }, // I
 			{ 2, 4, 5, 7 }, // Z
@@ -37,26 +37,24 @@ public class Game extends JPanel implements ActionListener {
 	private Point[] a = new Point[4];
 	private Point[] b = new Point[4];
 
-	private BufferedImage tiles;
+	private BufferedImage tilesImage;
 	private BufferedImage backgroundImage;
-	private BufferedImage frameImage;
 
+	private int dx, colorNum;
 	private boolean rotate = false;
-	private int dx = 0, colorNum = 1;
-	private float timer = 0, delay = 0.3f;
+	private float timer = 0f, delay = 0.3f;
 
 	private Timer timer2 = new Timer(50, this);
 
 	public Game(JFrame frame) {
 		try {
-			tiles = ImageIO.read(new File("./src/images/tiles.png"));
+			tilesImage = ImageIO.read(new File("./src/images/tiles.png"));
 			backgroundImage = ImageIO.read(new File("./src/images/background.png"));
-			frameImage = ImageIO.read(new File("./src/images/frame.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		for (int i = 0; i < a.length; i++) {
+		for (int i = 0; i < 4; i++) {
 			a[i] = new Point();
 			b[i] = new Point();
 		}
@@ -78,8 +76,9 @@ public class Game extends JPanel implements ActionListener {
 		});
 
 		setBackground(Color.WHITE);
-
 		setPreferredSize(new Dimension(320, 480));
+
+		genereteFigure();
 
 		timer2.start();
 	}
@@ -90,26 +89,25 @@ public class Game extends JPanel implements ActionListener {
 
 		Graphics2D g2d = (Graphics2D) g;
 
-		g2d.drawImage(backgroundImage, 0, 0, null);
-		g2d.drawImage(frameImage, 0, 0, null);
+		g2d.drawImage(backgroundImage, 0, 0, this);
 
-		timer += 0.1;
+		timer += 0.1f;
 
-		// Move
+		// move
 		for (int i = 0; i < 4; i++) {
-			b[i] = a[i];
+			b[i].x = a[i].x;
+			b[i].y = a[i].y;
 			a[i].x += dx;
 		}
 
-		if (!check())
-			for (int i = 0; i < 4; i++)
-				a[i] = b[i];
+		if (!isValidFigure()) {
+			for (int i = 0; i < 4; i++) {
+				a[i].x = b[i].x;
+				a[i].y = b[i].y;
+			}
+		}
 
-		if (!check())
-			for (int i = 0; i < 4; i++)
-				a[i] = b[i];
-
-		// Rotate
+		// rotate figure
 		if (rotate) {
 			Point p = a[1]; // center of rotation
 			for (int i = 0; i < 4; i++) {
@@ -118,45 +116,51 @@ public class Game extends JPanel implements ActionListener {
 				a[i].x = p.x - x;
 				a[i].y = p.y + y;
 			}
-			if (!check())
-				for (int i = 0; i < 4; i++)
-					a[i] = b[i];
+
+			if (!isValidFigure()) {
+				for (int i = 0; i < 4; i++) {
+					a[i].x = b[i].x;
+					a[i].y = b[i].y;
+				}
+			}
 		}
 
-		// Tick
+		// tick
 		if (timer > delay) {
-			for (int i = 0; i < 4; i++) {
-				b[i] = a[i];
+			for (int i = 0; i < a.length; i++) {
+				b[i].x = a[i].x;
+				b[i].y = a[i].y;
 				a[i].y += 1;
 			}
 
-			if (!check()) {
+			if (!isValidFigure()) {
 				for (int i = 0; i < 4; i++)
-					//fields[b[i].y][b[i].x] = colorNum == 1 ? true : false;
+					fields[b[i].y][b[i].x] = colorNum;
 
-				colorNum = 1 + random.nextInt(7);
-				int n = random.nextInt(7);
-				for (int i = 0; i < 4; i++) {
-					a[i].x = figures[n][i] % 2;
-					a[i].y = figures[n][i] / 2;
-				}
+				genereteFigure();
 			}
 
-			timer = 0;
+			if (!isValidFigure()) {
+				for (int i = 0; i < ROWS; i++) {
+					for (int j = 0; j < COLUMNS; j++)
+						fields[i][j] = 0;
+				}
+				genereteFigure();
+			}
+
+			timer = 0f;
 		}
 
 		// check lines
-		int k = M - 1;
-		for (int i = M - 1; i > 0; i--) {
+		int k = ROWS - 1;
+		for (int i = ROWS - 1; i > 0; i--) {
 			int count = 0;
-
-			for (int j = 0; j < N; j++) {
-				if (fields[i][j])
+			for (int j = 1; j < COLUMNS - 2; j++) {
+				if (fields[i][j] != 0)
 					count++;
 				fields[k][j] = fields[i][j];
 			}
-
-			if (count < N)
+			if (count < COLUMNS - 3)
 				k--;
 		}
 
@@ -164,27 +168,41 @@ public class Game extends JPanel implements ActionListener {
 		rotate = false;
 		delay = 0.3f;
 
-		for (int i = 0; i < M; i++) {
-			for (int j = 0; j < N; j++) {
-				if (fields[i][j] == false)
+		// draw stopped figures
+		for (int i = 0; i < ROWS; i++) {
+			for (int j = 0; j < COLUMNS; j++) {
+				if (fields[i][j] == 0)
 					continue;
 
-				BufferedImage s = tiles.getSubimage(18, 0, 18, 18);
-				g2d.drawImage(s, j * 18, i * 18, null);
+				BufferedImage s = tilesImage.getSubimage(fields[i][j] * 18, 0, 18, 18);
+				g2d.drawImage(s, j * 18, i * 18, this);
 			}
 		}
 
+		// draw current figure
 		for (int i = 0; i < 4; i++) {
-			BufferedImage s = tiles.getSubimage(18, 0, 18, 18);
-			g2d.drawImage(s, a[i].x * 18, a[i].y * 18, null);
+			BufferedImage s = tilesImage.getSubimage(colorNum * 18, 0, 18, 18);
+			g2d.drawImage(s, a[i].x * 18, a[i].y * 18, this);
 		}
 	}
 
-	private boolean check() {
+	private void genereteFigure() {
+		colorNum = 1 + random.nextInt(7);
+
+		int numberOfFigure = random.nextInt(7);
+
+		int initialPosition = random.nextInt(COLUMNS - 2) + 1;
+		for (int i = 0; i < 4; i++) {
+			a[i].x = figures[numberOfFigure][i] % 2 + initialPosition;
+			a[i].y = figures[numberOfFigure][i] / 2;
+		}
+	}
+
+	private boolean isValidFigure() {
 		for (int i = 0; i < 4; i++)
-			if (a[i].x < 0 || a[i].x >= N || a[i].y >= M)
+			if (a[i].x < 1 || a[i].x >= COLUMNS || a[i].y >= ROWS)
 				return false;
-			else if (fields[a[i].y][a[i].x])
+			else if (fields[a[i].y][a[i].x] != 0)
 				return false;
 
 		return true;

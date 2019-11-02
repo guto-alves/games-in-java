@@ -9,7 +9,7 @@ public class Main {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.add(new Game(frame));
-		frame.setSize(new Dimension(350, 500));
+		frame.setSize(new Dimension(335, 520));
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
