@@ -13,3 +13,6 @@
 
 ## 15 Puzzle
 ![15 Puzzle](https://user-images.githubusercontent.com/48946749/65973021-0b978f80-e441-11e9-81f8-b281851741e8.gif)
+
+## Tetris
+![tetris](https://user-images.githubusercontent.com/48946749/68123384-8b56c500-feeb-11e9-9045-98da78d1575b.gif)
