@@ -1,5 +1,5 @@
 # Games in Java
-16 games in Java using Java 2D API.
+Games in Java using Java 2D API.
 
 ## Doodle Jump
 ![doodle jump](https://user-images.githubusercontent.com/48946749/65619584-c7b30f00-df96-11e9-9a79-7d4f917fb233.gif)
